@@ -54,7 +54,7 @@ func main() {
 	for _, file := range files {
 
 		// Read the file.
-		filename := files.Name()
+		filename := file.Name()
 		value, err := ioutil.ReadFile(filepath.Join(path, filename))
 		if err != nil {
 			fatal(err)
