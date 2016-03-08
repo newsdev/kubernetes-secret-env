@@ -1,10 +1,10 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,20 +12,14 @@ import (
 	"syscall"
 )
 
-// fatal prints an error's string value to stderr and exits with a non-zero
-// status.
-func fatal(err error) {
-	fmt.Fprintln(os.Stderr, err)
-	os.Exit(1)
-}
-
 var (
-	NoCommandError = errors.New("a command must be provided")
-	path           string
+	config struct {
+		path string
+	}
 )
 
 func init() {
-	flag.StringVar(&path, "p", "/etc/secret-volume", "a secret volume's mount path")
+	flag.StringVar(&config.path, "p", "/etc/secret-volume", "a secret volume's mount path")
 }
 
 func main() {
@@ -34,7 +28,7 @@ func main() {
 	// Find the expanded path to the given executable.
 	command, err := exec.LookPath(flag.Arg(0))
 	if err != nil {
-		fatal(err)
+		log.Fatal(err)
 	}
 
 	// We want to use the current environment as a starting point and
@@ -46,18 +40,18 @@ func main() {
 	}
 
 	// List the provided directory.
-	files, err := ioutil.ReadDir(path)
+	files, err := ioutil.ReadDir(config.path)
 	if err != nil {
-		fatal(err)
+		log.Fatal(err)
 	}
 
 	for _, file := range files {
 
 		// Read the file.
 		filename := file.Name()
-		value, err := ioutil.ReadFile(filepath.Join(path, filename))
+		value, err := ioutil.ReadFile(filepath.Join(config.path, filename))
 		if err != nil {
-			fatal(err)
+			log.Fatal(err)
 		}
 
 		// Set the key/value pair in the environment, overwriting existing values.
@@ -72,7 +66,7 @@ func main() {
 		commandEnv = append(commandEnv, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	if err := syscall.Exec(command, flag.Args(), commandEnv); err != nil {
-		fatal(err)
-	}
+	log.Fatal(
+		syscall.Exec(command, flag.Args(), commandEnv),
+	)
 }
