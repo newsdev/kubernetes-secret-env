@@ -47,8 +47,17 @@ func main() {
 
 	for _, file := range files {
 
-		// Read the file.
+		// Verify that the file is a file, not a directory.
 		filename := file.Name()
+		fileInfo, err := os.Stat(filepath.Join(config.path, filename))
+		if err != nil {
+			log.Fatal(err)
+		}
+		if fileInfo.IsDir() {
+			continue
+		}
+
+		// Read the file.
 		value, err := ioutil.ReadFile(filepath.Join(config.path, filename))
 		if err != nil {
 			log.Fatal(err)
