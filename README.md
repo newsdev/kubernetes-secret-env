@@ -4,6 +4,20 @@ Take Kubernetes secrets provided via a mounted volume and execute a process that
 
 `kubernetes-secret-env {{ your program }}`
 
+## Dockerfile
+
+Put this in your Dockerfile to install.
+
+```
+# Install kubernetes-secret-env
+ENV KUBERNETES_SECRET_ENV_VERSION=0.0.2
+RUN \
+  mkdir -p /etc/secret-volume && \
+  cd /usr/local/bin && \
+  curl -fLO https://github.com/newsdev/kubernetes-secret-env/releases/download/$KUBERNETES_SECRET_ENV_VERSION/kubernetes-secret-env && \
+chmod +x kubernetes-secret-env
+```
+
 ## Releasing new versions
 
 To make the compiled version of `kubernetes-secret-env` available for Dockerfiles download, we have to separately attach that compiled file to the release on GitHub. This file has to be compiled on the same system architecture that you want it to run on.
